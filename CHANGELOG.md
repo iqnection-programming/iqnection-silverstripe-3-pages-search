@@ -2,5 +2,8 @@
 # Change Log
 
 
+## [0.0.2]
+- a little more stable
+
 ## [0.0.1]
 - First build

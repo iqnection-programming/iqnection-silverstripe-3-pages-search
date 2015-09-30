@@ -4,6 +4,11 @@
 	{
 		private static $db = array(
 		);	
+		
+		private static $defaults = array(
+			'ShowInMenus' => false,
+			'ShowInSearch' => false
+		);
 				
 		public function getCMSFields()
 		{

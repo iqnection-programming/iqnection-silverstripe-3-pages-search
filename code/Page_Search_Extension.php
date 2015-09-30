@@ -7,10 +7,9 @@
 	
 	class Page_Controller_Search_Extension extends Extension
 	{
-		function SearchPage()
+		function SiteSearchPage()
 		{
 			return DataObject::get_one('SearchResultsPage');
-		}
-		
+		}		
 	}
 	
