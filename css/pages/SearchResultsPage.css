@@ -1,7 +1,12 @@
 
-@media (max-width:829px) and (min-width:679px){
-}
+#SearchResults									{ }
+#SearchResults > li								{ padding-top:25px; margin-top:25px; border-top:1px solid #666; }
+#SearchResults > li:first-child					{ padding-top:0; margin-top:0; border:none; }
+#SearchResults a.searchResultHeader				{ font-weight:bold; font-size:1.2em; }
+#SearchResults > li p							{ margin-bottom:5px; }
 
-@media (max-width:599px){
-}
-
+#SearchForm_Results								{ margin-bottom:30px; }
+#SearchForm_Results:after						{ content:"."; display:block; height:0; clear:both; zoom:1; visibility:hidden; }
+#SearchForm_Results div							{ float:left; margin-right:5px; }
+#SearchForm_Results div.middleColumn			{ width:100%; }
+#SearchForm_Results .Actions input				{ min-height:41px; margin-top:1px; }

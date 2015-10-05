@@ -29,6 +29,17 @@
 			parent::init();
 		}
 		
+		public function PageCSS()
+		{
+			$files = array_merge(
+				parent::PageCSS(),
+				array(
+					ViewableData::ThemeDir().'/css/forms.css'
+				)
+			);
+			return $files;
+		}
+		
 		private static function sortByScore(&$a, &$b)
 		{
 			return $a['score'] < $b['score'];
