@@ -1,6 +1,9 @@
 ## Package: iqnection-silverstripe-3-search
 # Change Log
 
+## [1.0.0]
+- Stable Build
+
 ## [0.0.3]
 - more pretty
 
