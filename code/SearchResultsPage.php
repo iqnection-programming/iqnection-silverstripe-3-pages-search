@@ -1,4 +1,4 @@
-<?
+<?php
 
 	class SearchResultsPage extends Page
 	{
@@ -121,9 +121,9 @@
 							$object_indexes = $object_instance->databaseIndexes();
 							
 							//if ($_SERVER['REMOTE_ADDR'] == "173.161.227.54") { print "<pre>$object_class: ".print_r($object_indexes, true)."</pre>\n"; }
-													
 							if ($object_indexes['SearchFields'] && $object_indexes['SearchFields']['type'] == "fulltext")
 							{
+
 								$object_index_fields = explode(",", preg_replace("/[\(\"']*/", "", $object_indexes['SearchFields']['value']));
 								$object_field_list = $object_class.".".implode(", ".$object_class.".", $object_index_fields);
 								
@@ -133,8 +133,7 @@
 									FROM ".$object_class."
 									WHERE MATCH (".$object_field_list.") AGAINST ('".DB::getConn()->addslashes($search_query)."' IN BOOLEAN MODE)
 									ORDER BY score DESC
-								";
-								
+								";								
 								foreach (DB::query($object_query) as $found_object)
 								{
 									$parent_page = false;
@@ -200,7 +199,7 @@
 			}
 			
 			// finito
-			$data['Results'] = $resultSet; 		
+			$data['PaginatedResults'] = new PaginatedList($resultSet,$this->getRequest());	
 			$data['Query'] = $search_query;
 		 
 			return $this->customise($data)->renderWith(array("SearchResultsPage_results", "Page"));
@@ -217,34 +216,4 @@
 			$items = array_slice($items, $pageLimits["pageStart"], $pageLimits["pageLength"]);
 			return new ArrayList($items);
 		}
-	}	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+	}
