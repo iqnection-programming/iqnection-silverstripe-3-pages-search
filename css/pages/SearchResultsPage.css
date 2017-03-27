@@ -1,6 +1,6 @@
 
-#SearchResults									{ }
-#SearchResults > li								{ padding-top:25px; margin-top:25px; border-top:1px solid #666; }
+#SearchResults									{ display:block; list-style:none; }
+#SearchResults > li								{ padding-top:25px; margin-left:0; margin-top:25px; border-top:1px solid #666; }
 #SearchResults > li:first-child					{ padding-top:0; margin-top:0; border:none; }
 #SearchResults a.searchResultHeader				{ font-weight:bold; font-size:1.2em; }
 #SearchResults > li p							{ margin-bottom:5px; }
@@ -9,4 +9,10 @@
 #SearchForm_Results:after						{ content:"."; display:block; height:0; clear:both; zoom:1; visibility:hidden; }
 #SearchForm_Results div							{ float:left; margin-right:5px; }
 #SearchForm_Results div.middleColumn			{ width:100%; }
-#SearchForm_Results .Actions input				{ min-height:41px; margin-top:1px; }
+#SearchForm_Results .field input				{ display:block; height:42px; padding:0 15px; }
+#SearchForm_Results .Actions input				{ min-height:41px; color:#FFF; font-size:16px; outline:none; border:none; padding:0px 15px; background:#0e2246; margin:0; }
+#SearchForm_Results .Actions input:hover,
+#SearchForm_Results .Actions input:focus		{ cursor:pointer; background: #1A4186;  }
+
+
+.pagination										{ clear:both; margin:0; padding-top:30px; }
