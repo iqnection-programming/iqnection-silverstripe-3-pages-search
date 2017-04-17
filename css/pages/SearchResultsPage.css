@@ -10,9 +10,9 @@
 #SearchForm_Results div							{ float:left; margin-right:5px; }
 #SearchForm_Results div.middleColumn			{ width:100%; }
 #SearchForm_Results .field input				{ display:block; height:42px; padding:0 15px; }
-#SearchForm_Results .Actions input				{ min-height:41px; color:#FFF; font-size:16px; outline:none; border:none; padding:0px 15px; background:#0e2246; margin:0; }
+#SearchForm_Results .Actions input				{ min-height:41px; margin:0; }
 #SearchForm_Results .Actions input:hover,
-#SearchForm_Results .Actions input:focus		{ cursor:pointer; background: #1A4186;  }
+#SearchForm_Results .Actions input:focus		{ cursor:pointer; }
 
 
 .pagination										{ clear:both; margin:0; padding-top:30px; }
