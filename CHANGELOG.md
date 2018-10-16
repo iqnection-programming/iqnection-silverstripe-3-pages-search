@@ -1,6 +1,9 @@
 ## Package: iqnection-silverstripe-3-search
 # Change Log
 
+## [2.0.0]
+- Updated for SilverStripe 4
+
 ## [1.0.0]
 - Stable Build
 

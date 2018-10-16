@@ -1,11 +1,14 @@
+<!-- template: IQnection/SearchResultsPage/Layout/SearchResultsPage_results.ss -->
+
 <h1>$Title</h1>
 $Content
-<% include SiteSearchForm %>
+<% include IQnection/SearchResultsPage/Includes/SiteSearchForm %>
+
 <% if $Query %>
 	<p class="searchQuery"><strong>You searched for &quot;{$Query}&quot;</strong></p>
 <% end_if %>
 
-<% if $PaginatedResults %>
+<% if $PaginatedResults.Count %>
 	<p>$PaginatedResults.getTotalItems Results Found</p>
 	<ul id="SearchResults">
 		<% loop $PaginatedResults %>

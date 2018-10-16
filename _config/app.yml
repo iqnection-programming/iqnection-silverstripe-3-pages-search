@@ -1,6 +1,9 @@
-Page:
+---
+Name: iqsearchresultspage
+---
+SilverStripe\CMS\Model\SiteTree:
   extensions:
-    - Page_Search_Extension
-Page_Controller:
+    - IQnection\SearchResultsPage\Extensions\SiteTreeExtension
+PageController:
   extensions:
-    - Page_Controller_Search_Extension
+    - IQnection\SearchResultsPage\Extensions\PageControllerExtension

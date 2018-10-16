@@ -1,18 +1,26 @@
 {
 	"name": "iqnection-pages/searchresultspage",
-	"description": "SilverStripe 3 Search Page",
-	"type": "silverstripe-module",
+	"description": "SilverStripe Search Page",
+	"type": "silverstripe-vendormodule",
 	"keywords": ["iqnection","pages","search"],
+	"license": "BSD-3-Clause",
 	"authors": [
 		{
 			"name": "IQnection",
-            "homepage": "http://www.iqnection.com"
+            "homepage": "https://www.iqnection.com"
 		}
 	],
 	"require": {
-		"silverstripe/framework": ">=3.0"
+		"silverstripe/framework": "^4.1"
 	},
 	"extra": {
-		"installer-name": "iq-searchresultspage"
+		"expose": [
+			"css"
+		]
+	},
+	"autoload": {
+		"psr-4": {
+			"IQnection\\SearchResultsPage\\": "app/src/"
+		}
 	}
 }
