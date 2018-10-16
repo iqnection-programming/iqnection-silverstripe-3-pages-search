@@ -5,14 +5,13 @@
 #SearchResults a.searchResultHeader				{ font-weight:bold; font-size:1.2em; }
 #SearchResults > li p							{ margin-bottom:5px; }
 
-#SearchForm_Results								{ margin-bottom:30px; }
-#SearchForm_Results:after						{ content:"."; display:block; height:0; clear:both; zoom:1; visibility:hidden; }
-#SearchForm_Results div							{ float:left; margin-right:5px; }
-#SearchForm_Results div.middleColumn			{ width:100%; }
-#SearchForm_Results .field input				{ display:block; height:42px; padding:0 15px; }
-#SearchForm_Results .Actions input				{ min-height:41px; margin:0; }
-#SearchForm_Results .Actions input:hover,
-#SearchForm_Results .Actions input:focus		{ cursor:pointer; }
+#SearchForm_Results								{ margin-bottom:30px; display:flex; justify-content:flex-start; align-items:flex-start; flex-wrap:wrap; width:500px; max-width:100%; }
+#SearchForm_Results > *							{ }
+#SearchForm_Results div.middleColumn			{ max-width:none; }
+#SearchForm_Results .field.text					{ margin:0; width:100%; flex-grow:1; }
+#SearchForm_Results .btn-toolbar				{ margin-left:5px; }
+#SearchForm_Results .btn-toolbar input:hover,
+#SearchForm_Results .btn-toolbar input:focus		{ cursor:pointer; }
 
 
 .pagination										{ clear:both; margin:0; padding-top:30px; }

@@ -118,8 +118,8 @@ class SearchResultsPage_Controller extends \PageController
 										$object = $object_class::get()->byID($found_object['ID']);
 
 										$found_object['Page'] = $object;
-										$found_object['Title'] = method_exists($object_class, "getTitle") ? $object->getTitle() : ($object->Title ? $object->Title : $object_class);
-										$found_object['Content'] = method_exists($object_class, "Content") ? $object->Content() : ($object->Content ? $object->Content : false);
+										$found_object['Title'] = $object->hasMethod("getTitle") ? $object->getTitle() : ($object->Title ? $object->Title : $object_class);
+										$found_object['Content'] = $object->hasMethod("Content") ? $object->Content() : ($object->Content ? $object->Content : false);
 	
 										$results['objects'][$object_class."_".$found_object['ID']] = $found_object;
 									}
@@ -153,9 +153,11 @@ class SearchResultsPage_Controller extends \PageController
 		{
 			foreach( $all_results as $result )
 			{
+				// strip out images
+				$content = preg_replace('/\<img[^\>]*>/','',$result['Content']);
 				$post = ArrayData::create([
 					'ResultTitle' => FieldType\DBField::create_field(FieldType\DBVarchar::class,$result['Title']),
-					'Content' => FieldType\DBField::create_field(FieldType\DBHTMLText::class,$result['Content']),
+					'Content' => FieldType\DBField::create_field(FieldType\DBHTMLText::class,$content)->setProcessShortCodes(true),
 					'Page' => $result['Page']
 				]);
 				$resultSet->push($post);

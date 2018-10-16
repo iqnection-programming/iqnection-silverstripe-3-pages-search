@@ -1,5 +1,6 @@
 <?php
 
+namespace IQnection\SearchResultsPage\Extensions;
 
 use SilverStripe\ORM;
 use SilverStripe\Forms;

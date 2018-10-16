@@ -13,11 +13,11 @@ $Content
 	<ul id="SearchResults">
 		<% loop $PaginatedResults %>
 			<li>
-				<a class="searchResultHeader" href="$Link">
+				<a class="searchResultHeader" href="$Page.Link">
 					$ResultTitle
 				</a>
-				<p>$Content.LimitWordCountXML</p>
-				<a class="readMoreLink" href="$Link" 
+				<p>$Content.Plain.Summary</p>
+				<a class="readMoreLink" href="$Page.Link" 
 					title="Read more about &quot;{$ResultTitle}&quot;"
 					>Read more about &quot;{$ResultTitle}&quot;...</a>
 			</li>
