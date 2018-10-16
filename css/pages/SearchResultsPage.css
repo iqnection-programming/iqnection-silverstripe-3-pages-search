@@ -5,7 +5,7 @@
 #SearchResults a.searchResultHeader				{ font-weight:bold; font-size:1.2em; }
 #SearchResults > li p							{ margin-bottom:5px; }
 
-#SearchForm_Results								{ margin-bottom:30px; display:flex; justify-content:flex-start; align-items:flex-start; flex-wrap:wrap; width:500px; max-width:100%; }
+#SearchForm_Results								{ margin-bottom:30px; display:flex; justify-content:flex-start; align-items:flex-start; width:500px; max-width:100%; }
 #SearchForm_Results > *							{ }
 #SearchForm_Results div.middleColumn			{ max-width:none; }
 #SearchForm_Results .field.text					{ margin:0; width:100%; flex-grow:1; }
