@@ -15,7 +15,7 @@
 	},
 	"extra": {
 		"expose": [
-			"css"
+			"client"
 		]
 	},
 	"autoload": {
