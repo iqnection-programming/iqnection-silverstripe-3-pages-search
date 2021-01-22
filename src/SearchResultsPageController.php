@@ -3,174 +3,123 @@
 namespace IQnection\SearchResultsPage;
 
 use SilverStripe\ORM\DB;
-use SilverStripe\ORM\DataObjectSchema;
-use SilverStripe\ORM\Search\FulltextSearchable;
-use SilverStripe\Core\Convert;
+use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\ArrayList;
 use SilverStripe\View\ArrayData;
 use SilverStripe\ORM\FieldType;
 use SilverStripe\CMS\Model\SiteTree;
 use SilverStripe\ORM\PaginatedList;
+use SilverStripe\Versioned\Versioned;
+use SilverStripe\ORM\Queries\SQLSelect;
+use SilverStripe\ORM\Connect\MySQLDatabase;
+use SilverStripe\View\Requirements;
 
-class SearchResultsPage_Controller extends \PageController
-{	
+class SearchResultsPageController extends \PageController
+{
 	private static $allowed_actions = array(
 		"results"
 	);
-	
-	private static function sortByScore(&$a, &$b)
-	{
-		return $a['score'] < $b['score'];
-	}
-	
+
+    protected function init()
+    {
+        parent::init();
+        Requirements::css('iqnection-pages/searchresultspage:client/css/SearchResultsPage.css');
+    }
+
 	public function results()
 	{
-		// Page Classes
-		$page_classes = array();
-		
-		$results = array(
-			"pages" => array(),
-			"objects" => array()
-		);
-		
-		$search_query = trim($this->getRequest()->getVar("s"));
-		
-		// search pages
-		$schema = \singleton(DataObjectSchema::class);
-		$siteTree = \SilverStripe\CMS\Model\SiteTree::singleton();
-		foreach ($siteTree->obj('ClassName')->enumValues() as $page_class_name)
-		{
-//			if ($page_class_name == SiteTree::class) { continue; }
-			$select = "SiteTree_Live.ID, SiteTree_Live.ClassName, SiteTree_Live.Title, SiteTree_Live.Content, SiteTree_Live.ParentID";
-			$match = "SiteTree_Live.Title, SiteTree_Live.MenuTitle, SiteTree_Live.Content, SiteTree_Live.ExtraMeta, SiteTree_Live.MetaDescription";
-			$match_join = false;
-			$from = "SiteTree_Live";
-			$join = false;
-			$where = "SiteTree_Live.ClassName = '".$page_class_name."' AND SiteTree_Live.ShowInSearch = 1";
-			
-			$instance = \singleton($page_class_name);
-			$indexes = $schema->databaseIndexes($page_class_name,false);
-			$tableName = $schema->tableName($page_class_name);
-			if ( (isset($indexes['SearchFields']['type'])) && ($indexes['SearchFields']['type'] == "fulltext") )
-			{
-				$field_list = $tableName."_Live.".implode(", ".$tableName."_Live.", $indexes['SearchFields']['columns']);
-				if ($page_class_name != SiteTree::class) 
-				{
-					$join = "INNER JOIN ".$tableName."_Live ON ".$tableName."_Live.ID = SiteTree_Live.ID";
-				}
-				$match_join = $field_list;
-			}
-			
-			$query = "SELECT ".$select.", 
-				(MATCH (".$match.") AGAINST ('".Convert::raw2sql($search_query)."' IN BOOLEAN MODE)".
-					($match_join ? " + MATCH (".$match_join.") AGAINST ('".Convert::raw2sql($search_query)."') " : "").
-				") AS 'score' FROM ".$from." ".($join ? " ".$join." " : "")."
-				WHERE ".$where." AND (MATCH (".$match.") AGAINST ('".Convert::raw2sql($search_query)."' IN BOOLEAN MODE)".
-					($match_join ? " OR MATCH (".$match_join.") AGAINST ('".Convert::raw2sql($search_query)."') " : "").
-				") ORDER BY score DESC";
-				
-			foreach (DB::query($query) as $found_page)
-			{
-				$object = SiteTree::get()->byID($found_page['ID']);
-				$found_page['Page'] = $object;
-				$results['pages'][$found_page['ID']] = $found_page;
-			}
-			
-			// Search for dataobjects that are part of the class:
-			
-			if ( ($instance->hasMethod('has_many')) && (count($instance->has_many())) )
-			{
-				foreach ($instance->has_many() as $field => $object_class)
-				{
-					$object_instance = \singleton($object_class);
-					
-					if ($object_instance->has_one($page_class_name))
-					{
-						$object_indexes = $object_instance->databaseIndexes();
-						
-						//if ($_SERVER['REMOTE_ADDR'] == "173.161.227.54") { print "<pre>$object_class: ".print_r($object_indexes, true)."</pre>\n"; }
-						if ( (isset($object_indexes['SearchFields']['type'])) && ($object_indexes['SearchFields']['type'] == "fulltext") )
-						{
+        $db = new MySQLDatabase();
+        $db->setConnector(DB::get_connector());
+        $s1 = trim($this->getRequest()->requestVar("s"));
+        $s2 = str_replace(' ','+',$s1);
+        $search_query = $db->quoteString($s2);
 
-							$objectTableName = $schema->tableName($page_class_name);
-							$object_field_list = $objectTableName.".".implode(", ".$objectTableName.".", $object_indexes['SearchFields']['value']);
-							$object_query = "
-								SELECT ".$objectTableName.".ID, ".$object_field_list.", ".$objectTableName."ID,
-									MATCH (".$object_field_list.") AGAINST ('".Convert::raw2sql($search_query)."') AS 'score' 
-								FROM ".$object_class."
-								WHERE MATCH (".$object_field_list.") AGAINST ('".Convert::raw2sql($search_query)."' IN BOOLEAN MODE)
-								ORDER BY score DESC
-							";								
-							foreach (DB::query($object_query) as $found_object)
-							{
-								$parent_page = false;
-								$query = "SELECT ID, ClassName, Title, Content, ParentID, ShowInSearch, 0 AS 'score'
-									FROM SiteTree_Live
-									WHERE ID = ".$found_object[$page_class_name.'ID']."
-									AND ClassName = '".$page_class_name."'
-								";
-								foreach (DB::query($query) as $pp) $parent_page = $pp;
-									
-								if ($parent_page && $parent_page['ShowInSearch'] > 0)
-								{
-									if (method_exists($object_class, "Link"))
-									{
-										$object = $object_class::get()->byID($found_object['ID']);
+        // collect all indexes named SearchFields
+        $schema = DataObject::getSchema();
 
-										$found_object['Page'] = $object;
-										$found_object['Title'] = $object->hasMethod("getTitle") ? $object->getTitle() : ($object->Title ? $object->Title : $object_class);
-										$found_object['Content'] = $object->hasMethod("Content") ? $object->Content() : ($object->Content ? $object->Content : false);
-	
-										$results['objects'][$object_class."_".$found_object['ID']] = $found_object;
-									}
-									else
-									{
-										if (!$results['pages'][$found_object[$page_class_name.'ID']])
-										{
-											$parent_obj = SiteTree::get()->byID($parent_page['ID']);
-											$parent_page['Page'] = $parent_obj;
-											$results['pages'][$parent_page['ID']] = $parent_page;
-										}
 
-										$results['pages'][$found_object[$page_class_name.'ID']]['score'] += $found_object['score'];
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-			
-		}
-		
-		$all_results = array_merge($results['pages'], $results['objects']);
-		uasort($all_results, array('self', 'sortByScore'));
-			
-		$resultSet = ArrayList::create();
-		
-		// strip all html tags from the result set			
-		if( count($all_results) > 0 )
-		{
-			foreach( $all_results as $result )
-			{
-				// strip out images
-				$content = preg_replace('/\<img[^\>]*>/','',$result['Content']);
-				$post = ArrayData::create([
-					'ResultTitle' => FieldType\DBField::create_field(FieldType\DBVarchar::class,$result['Title']),
-					'Content' => FieldType\DBField::create_field(FieldType\DBHTMLText::class,$content)->setProcessShortCodes(true),
-					'Page' => $result['Page']
-				]);
-				$resultSet->push($post);
-			}
-		}
-		
-		// finito
-		$data['PaginatedResults'] = PaginatedList::create($resultSet,$this->getRequest());	
-		$data['Query'] = $search_query;
-	 
-		return $this->customise($data)->renderWith(array("IQnection/SearchResultsPage/SearchResultsPage_results", "Page"));
-	}
-	
+        $indexedTables = [];
+        foreach($schema->getTableNames() as $tableName)
+        {
+            $class = $schema->tableClass($tableName);
+            $tableIndexes = $schema->databaseIndexes($class, false);
+            $singleton = singleton($class);
+            if ( (array_key_exists('SearchFields', $tableIndexes)) && (method_exists($singleton,'getPage')) )
+            {
+                $indexedTables[] = [
+                    'tableName' => $tableName,
+                    'class' => $schema->tableClass($tableName),
+                    'indexes' => $tableIndexes['SearchFields'],
+                    'columns' => $schema->databaseFields($class),
+                    'singleton' => $singleton
+                ];
+            }
+        }
+
+        $arrayList = ArrayList::create();
+        // search each table on the index SearchFields
+        foreach($indexedTables as $indexedTable)
+        {
+            $sql = new SQLSelect();
+            $singleton = $indexedTable['singleton'];
+            $tableName = $indexedTable['tableName'];
+            $columns = $indexedTable['columns'];
+            $class = $indexedTable['class'];
+
+            // if the DataObject is versioned, search the _Live table instead
+            if ($singleton->hasExtension(Versioned::class))
+            {
+                $tableName .= '_Live';
+            }
+            $sql->setFrom($tableName);
+            $sql->selectField('(
+                MATCH ("'.implode('","', $indexedTable['indexes']['columns']).'")
+                AGAINST ('.$search_query.')
+            )', 'score');
+            if (array_key_exists('ShowInSearch', $columns))
+            {
+                $sql->addWhere('"ShowInSearch" = 1');
+            }
+            $sql->addHaving('score > 0');
+
+            $sqlStatement = $sql->sql();
+
+            $queryResults = $db->query($sqlStatement);
+            foreach($queryResults as $queryResult)
+            {
+                $dbObject = $class::get_by_id($queryResult['ID']);
+                $page = $dbObject;
+                if (!($page instanceof SiteTree))
+                {
+                    $page = $dbObject->getPage();
+                }
+                if ($page->Content)
+                {
+                    $content = $page->dbObject('Content');
+                }
+                elseif ( (class_exists('\\DNADesign\\Elemental\\Extensions\\ElementalPageExtension')) && ($page->hasExtension(\DNADesign\Elemental\Extensions\ElementalPageExtension::class)) )
+                {
+                    $content = $page->ElementalArea()->forTemplate();
+                }
+                $plainContent = FieldType\DBField::create_field(FieldType\DBHTMLText::class, strip_tags($content->forTemplate()));
+                $searchSummary = $plainContent->ContextSummary(300, $s1, true);
+                $page->extend('updateSearchSummary', $content, $s1);
+                $arrayList->push(ArrayData::create([
+                    'Page' => $page,
+                    'Summary' => $searchSummary,
+                    'Score' => $queryResult['score'],
+                ]));
+            }
+        }
+
+        $arrayList = $arrayList->Sort('score', 'DESC');
+
+        $data = [];
+        $data['PaginatedResults'] = PaginatedList::create($arrayList,$this->getRequest());
+        $data['Query'] = $s1;
+
+        return $this->Customise($data);
+    }
 }
 
 

@@ -10,20 +10,20 @@ $Content
 
 <% if $PaginatedResults.Count %>
 	<p>$PaginatedResults.getTotalItems Results Found</p>
-	<ul id="SearchResults">
-		<% loop $PaginatedResults %>
-			<li>
-				<a class="searchResultHeader" href="$Page.Link">
-					$ResultTitle
-				</a>
-				<p>$Content.Plain.Summary</p>
-				<a class="readMoreLink" href="$Page.Link" 
-					title="Read more about &quot;{$ResultTitle}&quot;"
-					>Read more about &quot;{$ResultTitle}&quot;...</a>
-			</li>
-		<% end_loop %>
-	</ul>
-		
+    <ul id="SearchResults">
+        <% loop $PaginatedResults %>
+            <li>
+                <a class="searchResultHeader" href="$Page.Link">
+                    $Page.Title
+                </a>
+                <p>$Summary.RAW</p>
+                <a class="readMoreLink" href="$Page.Link"
+                    title="Read more about &quot;{$Page.Title}&quot;"
+                    >Read more about &quot;{$Page.Title}&quot;...</a>
+            </li>
+        <% end_loop %>
+    </ul>
+
 	<% if $PaginatedResults.MoreThanOnePage %>
 		<p class="pagination">
 			<% if $PaginatedResults.NotFirstPage %>
@@ -49,4 +49,3 @@ $Content
 <% else %>
 	<p>Sorry, your search query did not return any results.</p>
 <% end_if %>
-	
