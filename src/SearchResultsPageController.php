@@ -13,6 +13,7 @@ use SilverStripe\Versioned\Versioned;
 use SilverStripe\ORM\Queries\SQLSelect;
 use SilverStripe\ORM\Connect\MySQLDatabase;
 use SilverStripe\View\Requirements;
+use SilverStripe\Core\Injector\Injector;
 
 class SearchResultsPageController extends \PageController
 {
@@ -43,8 +44,9 @@ class SearchResultsPageController extends \PageController
         {
             $class = $schema->tableClass($tableName);
             $tableIndexes = $schema->databaseIndexes($class, false);
-            $singleton = singleton($class);
-            if ( (array_key_exists('SearchFields', $tableIndexes)) && (method_exists($singleton,'getPage')) )
+
+            $singleton = Injector::inst()->create($class);
+            if ( (isset($tableIndexes['SearchFields'])) && ( ($singleton->hasMethod('getPage')) || ($singleton instanceof SiteTree) ) )
             {
                 $indexedTables[] = [
                     'tableName' => $tableName,

@@ -1,6 +1,9 @@
 ## Package: iqnection-silverstripe-3-search
 # Change Log
 
+## [2.1.1]
+- bug fixes
+
 ## [2.1.0]
 - Core search updates
 
