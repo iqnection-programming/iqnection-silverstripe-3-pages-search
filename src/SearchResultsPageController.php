@@ -89,28 +89,33 @@ class SearchResultsPageController extends \PageController
             $queryResults = $db->query($sqlStatement);
             foreach($queryResults as $queryResult)
             {
-                $dbObject = $class::get_by_id($queryResult['ID']);
-                $page = $dbObject;
-                if (!($page instanceof SiteTree))
+                if ($dbObject = $class::get_by_id($queryResult['ID']))
                 {
-                    $page = $dbObject->getPage();
+                    $page = $dbObject;
+                    if (!($page instanceof SiteTree))
+                    {
+                        if (!$page = $dbObject->getPage())
+                        {
+                            continue;
+                        }
+                    }
+                    if ($page->Content)
+                    {
+                        $content = $page->dbObject('Content');
+                    }
+                    elseif ( (class_exists('\\DNADesign\\Elemental\\Extensions\\ElementalPageExtension')) && ($page->hasExtension(\DNADesign\Elemental\Extensions\ElementalPageExtension::class)) )
+                    {
+                        $content = $page->ElementalArea()->forTemplate();
+                    }
+                    $plainContent = FieldType\DBField::create_field(FieldType\DBHTMLText::class, strip_tags($content->forTemplate()));
+                    $searchSummary = $plainContent->ContextSummary(300, $s1, true);
+                    $page->extend('updateSearchSummary', $content, $s1);
+                    $arrayList->push(ArrayData::create([
+                        'Page' => $page,
+                        'Summary' => $searchSummary,
+                        'Score' => $queryResult['score'],
+                    ]));
                 }
-                if ($page->Content)
-                {
-                    $content = $page->dbObject('Content');
-                }
-                elseif ( (class_exists('\\DNADesign\\Elemental\\Extensions\\ElementalPageExtension')) && ($page->hasExtension(\DNADesign\Elemental\Extensions\ElementalPageExtension::class)) )
-                {
-                    $content = $page->ElementalArea()->forTemplate();
-                }
-                $plainContent = FieldType\DBField::create_field(FieldType\DBHTMLText::class, strip_tags($content->forTemplate()));
-                $searchSummary = $plainContent->ContextSummary(300, $s1, true);
-                $page->extend('updateSearchSummary', $content, $s1);
-                $arrayList->push(ArrayData::create([
-                    'Page' => $page,
-                    'Summary' => $searchSummary,
-                    'Score' => $queryResult['score'],
-                ]));
             }
         }
 
